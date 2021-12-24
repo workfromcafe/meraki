@@ -5,6 +5,7 @@ services:
   mongo:
     container_name: meraki-db-mongo
     image: ${MONGO_IMAGE}
+    restart: always
     ports:
       - "27017:27017"
     # environment:
