@@ -394,5 +394,6 @@ Temporary Items
 
 =======
 # Local
+.config
 .env
 dist
