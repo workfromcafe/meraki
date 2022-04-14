@@ -22,17 +22,22 @@ services:
     image: workfromcafe/meraki-app
     build:
       context: .
-      dockerfile: docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV}
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SERVER_PORT=${SERVER_PORT}
+      - MONGODB_URL=${MONGO_DB_URL}
     ports:
-      - ${PORT}:${PORT}
+      - 3000:${SERVER_PORT}
+      - 9229:9229
     links:
       - mongo
-    environment: 
-      MONGODB_URL: ${MONGO_DB_URL}
     restart: always
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/node/app:delegated
+      - /node/app/node_modules
     networks:
       - meraki-netrwork
 
