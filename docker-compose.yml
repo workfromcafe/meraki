@@ -22,7 +22,7 @@ services:
     image: workfromcafe/meraki-app
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.dev
     ports:
       - ${PORT}:${PORT}
     links:
