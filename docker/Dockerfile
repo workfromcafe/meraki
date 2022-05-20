@@ -1,17 +1,74 @@
-FROM node:14
+# BASE STAGE
+# =============================
+FROM node:14-alpine AS base
 
-ENV HOME=/app
 
-RUN mkdir -p /app
+# =============================
+# BUILD STAGE DEVLEOPMENT
+# =============================
 
-RUN apt-get update
+FROM base AS development
 
-COPY package.json $HOME
+ENV SERVER_PORT=3000
+ENV PATH /node/node_modules/.bin:$PATH
+EXPOSE $SERVER_PORT 9229
 
-WORKDIR $HOME
+WORKDIR /node/app
 
-RUN npm install && npm cache clean --force
+COPY package*.json ./
 
-EXPOSE 3000
+RUN \ 
+    NODE_ENV=development \
+    npm ci --only=development && \
+    npm cache clean --force
 
-CMD ["npm", "run", "start:debug"]
+COPY . .
+
+RUN npm run build
+# WORKDIR /node/app
+CMD ["npm", "run", "start:dev"]
+
+
+# =============================
+# SOURCE STAGE 
+# =============================
+
+FROM base AS source
+
+WORKDIR /node
+COPY package*.json ./
+RUN \ 
+    npm ci --only=production && \
+    npm cache clean --force
+
+COPY . .
+
+RUN npm run build
+
+# =============================
+# BUILD TEST STAGE
+# =============================
+
+FROM source AS test
+
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+
+COPY --from=development /node/node_modules /node/node_modules
+
+RUN npm run test && npm run lint
+
+# =============================
+# BUILD STAGE PRODUCTION
+# =============================
+
+FROM source AS production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+ENV SERVER_PORT=3000
+
+EXPOSE $SERVER_PORT
+CMD ["npm", "run", "start:prod"]
