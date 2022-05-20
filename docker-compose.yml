@@ -23,12 +23,15 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-      args:
-        - NODE_ENV=${NODE_ENV}
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - SERVER_PORT=${SERVER_PORT}
-      - MONGODB_URL=${MONGO_DB_URL}
+      target: ${NODE_ENV}
+      # args:
+      #   - NODE_ENV=${NODE_ENV}
+    env_file:
+      - .env
+    # environment:
+    #   - NODE_ENV=${NODE_ENV}
+    #   - SERVER_PORT=${SERVER_PORT}
+    #   - MONGODB_URL=${MONGO_DB_URL}
     ports:
       - 3000:${SERVER_PORT}
       - 9229:9229
@@ -38,6 +41,7 @@ services:
     volumes:
       - .:/node/app:delegated
       - /node/app/node_modules
+    # command: npm run start:dev
     networks:
       - meraki-netrwork
 

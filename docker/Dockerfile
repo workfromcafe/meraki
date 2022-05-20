@@ -13,15 +13,20 @@ ENV SERVER_PORT=3000
 ENV PATH /node/node_modules/.bin:$PATH
 EXPOSE $SERVER_PORT 9229
 
-WORKDIR /node
+WORKDIR /node/app
+
 COPY package*.json ./
+
 RUN \ 
     NODE_ENV=development \
-    npm ci && \
+    npm ci --only=development && \
     npm cache clean --force
 
-WORKDIR /node/app
-CMD ["npm", "start"]
+COPY . .
+
+RUN npm run build
+# WORKDIR /node/app
+CMD ["npm", "run", "start:dev"]
 
 
 # =============================
@@ -33,10 +38,12 @@ FROM base AS source
 WORKDIR /node
 COPY package*.json ./
 RUN \ 
-    npm ci && \
+    npm ci --only=production && \
     npm cache clean --force
 
 COPY . .
+
+RUN npm run build
 
 # =============================
 # BUILD TEST STAGE
@@ -64,4 +71,4 @@ ENV PATH /node/node_modules/.bin:$PATH
 ENV SERVER_PORT=3000
 
 EXPOSE $SERVER_PORT
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:prod"]
