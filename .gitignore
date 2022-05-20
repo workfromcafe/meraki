@@ -391,9 +391,11 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+.vscode
 
 =======
 # Local
 .config
 .env
+.npm
 dist
